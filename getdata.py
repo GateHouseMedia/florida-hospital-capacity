@@ -65,18 +65,18 @@ data = {
   'keychain_version': '1'
 }
 baseurl = "https://bi.ahca.myflorida.com/t/ABICC/views/Public/HospitalBedsCounty?%3AshowAppBanner=false&%3Adisplay_count=n&%3AshowVizHome=n&%3Aorigin=viz_share_link&%3AisGuestRedirectFromVizportal=y&%3Aembed=y"
-r = requests.get(baseurl, headers=headers)
+r = requests.get(baseurl, headers=headers, timeout=10)
 soup = BeautifulSoup(r.text, 'lxml')
 config = json.loads(soup.select('#tsConfigContainer')[0].text)
 sessionid = config['sessionid']
-response = requests.post(f'https://bi.ahca.myflorida.com/vizql/t/ABICC/w/Public/v/HospitalBedsCounty/bootstrapSession/sessions/{sessionid}', headers=headers, data=data)
+response = requests.post(f'https://bi.ahca.myflorida.com/vizql/t/ABICC/w/Public/v/HospitalBedsCounty/bootstrapSession/sessions/{sessionid}', headers=headers, data=data, timeout=10)
 
 if response.status_code == 200:
     with open(f"{rawdir}{basefilename}{timestamp}.raw", "wb") as f:
         f.write(response.content)
 
 for corefilename in corefilenames:
-    r = requests.get(f"{basecsvurl}{corefilename}.csv", headers=headers)
+    r = requests.get(f"{basecsvurl}{corefilename}.csv", headers=headers, timeout=10)
     if r.status_code == 200:
         with open(f"{rawdir}{corefilename}_{timestamp}.csv", "wb") as outfile:
             outfile.write(r.content)
